@@ -2,46 +2,156 @@ function kwayyhs_encodeHTML(dirtyString) {
 	var container = document.createElement('div');
 	var text = document.createTextNode(dirtyString);
 	container.appendChild(text);
-	return container.innerHTML; // innerHTML will be a xss safe string
+	return container.innerHTML;
 }
 
-jQuery(document).ready(function(){
-	jQuery( "#kwayyhs-sortable" ).sortable({
-		placeholder: "kwayyhs-ui-state-highlight",
-
-		update: function(event, ui) {
-				var fruitOrder = jQuery("#kwayyhs-sortable").sortable('toArray').toString();
-				jQuery('#kwayyhs-sortorder').val(fruitOrder);
-				//$.get('update-sort.cfm', {fruitOrder:fruitOrder});
-			}
-	});
-	
-	jQuery('.kwayyhs_changename').click(function(){
-		jQuery(this).next().fadeIn();
-		return false;
-	});
-	
-	jQuery('a.kwayy-save-newname').click(function(){
-
-		if( jQuery(this).prev().val() == '' ){
-			originalname = jQuery(this).parent().parent().next().next().html();
-			jQuery(this).prev().val(originalname);
-			jQuery(this).parent().prev().prev().html(originalname);
-		} else {
-			jQuery(this).parent().prev().prev().html( kwayyhs_encodeHTML(jQuery(this).prev().val()) );
+jQuery(document).ready(function($){
+	$(document).on('click', '.kwayyhs-welcome-notice .notice-dismiss', function() {
+		if (typeof ajaxurl !== 'undefined') {
+			$.post(ajaxurl, { action: 'kwayyhs_dismiss_welcome_notice' });
 		}
-		jQuery(this).parent().fadeOut();
+	});
+
+	var $excludeSelect = $('#kwayyhs-exclude');
+
+	function formatSelect2Item(option) {
+		if (!option.id) {
+			return option.text;
+		}
+		var $element = $(option.element);
+		var iconClass = $element.data('icon');
+		if (!iconClass) {
+			iconClass = (option.id && option.id.toString().indexOf('term_') === 0) ? 'dashicons-tag' : 'dashicons-admin-post';
+		}
+		var $span = $('<span><span class="dashicons ' + iconClass + ' kwayyhs-select2-icon"></span> ' + kwayyhs_encodeHTML(option.text) + '</span>');
+		return $span;
+	}
+
+	// Initialize Select2 on Exclude Post select box
+	if ($excludeSelect.length && typeof $.fn.select2 !== 'undefined') {
+		$excludeSelect.select2({
+			placeholder: $excludeSelect.attr('data-placeholder') || 'Search and select posts or terms to exclude...',
+			allowClear: true,
+			width: '100%',
+			closeOnSelect: false,
+			templateResult: formatSelect2Item,
+			templateSelection: formatSelect2Item,
+			escapeMarkup: function(m) { return m; }
+		});
+	}
+
+	// Function to filter Select2 options based on checked CPT checkboxes
+	function updateExcludeOptions() {
+		if (!$excludeSelect.length) return;
+
+		// Get array of active (checked) CPT names
+		var activeCPTs = [];
+		$('#kwayyhs-sortable input[type="checkbox"]:checked').each(function() {
+			var name = $(this).attr('name') || '';
+			if (name.indexOf('kwayyhs_active_') === 0) {
+				var key = name.replace('kwayyhs_active_', '');
+				if (key) {
+					activeCPTs.push(key);
+					if (key.indexOf('cpt_') === 0) {
+						activeCPTs.push(key.replace('cpt_', ''));
+					}
+				}
+			}
+		});
+
+		// Loop through optgroups and options
+		$excludeSelect.find('optgroup').each(function() {
+			var $group = $(this);
+			var cpt = $group.attr('data-cpt');
+			var isActive = activeCPTs.indexOf(cpt) !== -1;
+
+			if (isActive) {
+				$group.prop('disabled', false);
+				$group.find('option').each(function() {
+					$(this).prop('disabled', false);
+				});
+			} else {
+				$group.prop('disabled', true);
+				$group.find('option').each(function() {
+					$(this).prop('disabled', true);
+					$(this).prop('selected', false);
+				});
+			}
+		});
+
+		// Refresh Select2
+		if (typeof $.fn.select2 !== 'undefined') {
+			$excludeSelect.trigger('change.select2');
+		}
+	}
+
+	// Initial update on page load
+	updateExcludeOptions();
+
+	// Trigger update when CPT checkbox changes
+	$(document).on('change', '#kwayyhs-sortable input[type="checkbox"]', function() {
+		updateExcludeOptions();
+	});
+
+	// jQuery UI Sortable setup
+	if ($('#kwayyhs-sortable').length) {
+		$('#kwayyhs-sortable').sortable({
+			handle: '.kwayyhs-dragable-handler',
+			placeholder: 'kwayyhs-ui-state-highlight',
+			update: function(event, ui) {
+				var fruitOrder = $('#kwayyhs-sortable').sortable('toArray').toString();
+				$('#kwayyhs-sortorder').val(fruitOrder);
+			}
+		});
+	}
+
+	// Change title toggle
+	$(document).on('click', '.kwayyhs_changename, .kwayyhs_changename a', function(e){
+		e.preventDefault();
+		e.stopPropagation();
+		$('.kwayyhs-newname').fadeOut(100);
+		var $popover = $(this).closest('.kwayyhs-cpt-name').find('.kwayyhs-newname');
+		$popover.fadeIn(150, function() {
+			$popover.find('input').focus().select();
+		});
 		return false;
 	});
-	
-	jQuery('a.kwayy-cancel-newname').click(function(){
-		jQuery(this).prev().prev().val( jQuery(this).parent().prev().prev().html() );
-		jQuery(this).parent().fadeOut();
+
+	// Prevent popover clicks from bubbling to document
+	$(document).on('click', '.kwayyhs-newname', function(e) {
+		e.stopPropagation();
+	});
+
+	// Hide popovers when clicking anywhere outside
+	$(document).on('click', function() {
+		$('.kwayyhs-newname').fadeOut(100);
+	});
+
+	$(document).on('click', 'button.kwayy-save-newname, a.kwayy-save-newname', function(e){
+		e.preventDefault();
+		var $popover = $(this).closest('.kwayyhs-newname');
+		var $input = $popover.find('input');
+		var val = $.trim($input.val());
+		var $cptRow = $(this).closest('.kwayyhs-cpt-row, .kwayyhs-cpt');
+		var origName = $cptRow.find('.kwayyhs-originalname').text();
+
+		if( val === '' ){
+			val = origName;
+			$input.val(val);
+		}
+
+		$cptRow.find('.kwayyhs-cpt-name-title').html( kwayyhs_encodeHTML(val) );
+		$popover.fadeOut(150);
 		return false;
 	});
-	
-	
-	
-	
-	//jQuery( "#kwayyhs-sortable" ).disableSelection();
+
+	$(document).on('click', 'button.kwayy-cancel-newname, a.kwayy-cancel-newname', function(e){
+		e.preventDefault();
+		var $popover = $(this).closest('.kwayyhs-newname');
+		var $cptRow = $(this).closest('.kwayyhs-cpt-row, .kwayyhs-cpt');
+		var currentTitle = $cptRow.find('.kwayyhs-cpt-name-title').text();
+		$popover.find('input').val( currentTitle );
+		$popover.fadeOut(150);
+		return false;
+	});
 });

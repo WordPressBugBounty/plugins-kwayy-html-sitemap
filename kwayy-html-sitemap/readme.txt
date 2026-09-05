@@ -1,99 +1,141 @@
-=== Plugin Name ===
+=== Kwayy HTML Sitemap ===
 Contributors: bimaljr
-Tags: HTML, Sitemap
-Requires at least: 3.0
-Tested up to: 3.5.1
-License: GPLv2
+Donate link: https://pbminfotech.com/
+Tags: sitemap, html sitemap, custom post type, taxonomy, woocommerce
+Requires at least: 5.0
+Tested up to: 7.1
+Requires PHP: 7.4
+Stable tag: 5.0
+License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Kwayy HTML Sitemap will generate HTML (not XML) sitemap for your sitemap page. The plugin will show Page, Posts and also Custom Post Types.
+Generate a clean, SEO-friendly HTML sitemap for WordPress. Supports Posts, Pages, Custom Post Types, Taxonomies, and WooCommerce.
 
 == Description ==
 
-Kwayy HTML Sitemap will generate HTML (not XML) sitemap for your sitemap page. The plugin will not only show Page and Posts but also your other Custom Post Type like Products etc. You can also configure to show or hide your Post Types. You just need to create a page for Sitemap and insert our shortcode `[kwayy-sitemap]` to display HTML sitemap.
+Generate a clean and SEO-friendly **HTML Sitemap** for your WordPress website.
 
-**Features**
+Kwayy HTML Sitemap helps you create a complete sitemap page that improves website navigation for both visitors and search engines. Unlike XML sitemaps, this plugin creates a fully readable HTML sitemap page directly on your website.
 
-* Options (Settings->Kwayy HTML Sitemap Options) to customize settings.
-* Very easy to use. Just add `[kwayy-sitemap]` to page under HTML section and it will show complete sitemap.
-* SEO Friendly code output.
-* You can sort each Post Type by just Drag and Drop.
-* Exclude any post from Sitemap list.
-* You can enable or disable each Post Type.
-* You can change title of custom post types (added in v3.0)
+The plugin supports:
 
-**Support**
+* Pages
+* Posts
+* Custom Post Types
+* Taxonomies (Categories, Tags, and Custom CPT Taxonomies)
+* WooCommerce Products
+* Any registered public post type
 
-You can start a new discussion on our official support forum at [forum.kwayyinfotech.com](http://forum.kwayyinfotech.com/ "Official Support Forum for Kwayy HTML Sitemap plugin")
+Simply add the shortcode below to any page and your sitemap will be generated automatically:
+
+`[kwayy-sitemap]`
+
+= Features =
+
+* Easy-to-use settings panel (Settings -> Kwayy HTML Sitemap)
+* Supports Custom Post Types and Taxonomies (Categories, Tags)
+* WooCommerce product & product taxonomy support
+* SEO-friendly HTML output with clean hierarchy
+* Enable or disable specific post types and taxonomies
+* Drag & Drop section reordering
+* Custom display titles for post types and taxonomies
+* Option to include CPT page / archive link as the first item
+* Search and select specific posts, pages, or taxonomy terms to exclude
+* Lightweight, fast performance, and responsive design
+
+= Why Use HTML Sitemap? =
+
+An HTML sitemap helps:
+
+* Improve website navigation for visitors
+* Increase internal linking and page crawlability
+* Help search engines discover all pages, CPTs, and taxonomy archives
+* Enhance overall user experience and SEO rankings
 
 == Installation ==
 
-1. Unpack the `kwayy-html-sitemap.zip`.
-2. Upload the file to the `/wp-content/plugins/` directory.
-3. Activate the plugin through the `Plugins` menu in WordPress.
-4. Configure the options in admin panel `Settings->Kwayy HTML Sitemap Options`.
-5. Done and Ready.
+1. Upload `kwayy-html-sitemap` to the `/wp-content/plugins/` directory, or install directly through the WordPress Plugins screen.
+2. Activate the plugin through the 'Plugins' screen in WordPress.
+3. Configure your post types, taxonomies, and exclusion options under **Settings -> Kwayy HTML Sitemap**.
+4. Create a new page (e.g. "Sitemap") and insert shortcode `[kwayy-sitemap]`.
+5. Publish the page and your HTML sitemap is live!
 
 == Frequently Asked Questions ==
 
-= How can I get sitemap on my page? =
-* Please add `[kwayy-sitemap]` to any page under HTML section to see simple Sitemap with SEO Optimized code.
+= How can I display the sitemap on my website? =
+Simply create a new WordPress page (e.g., "Sitemap") and add the shortcode `[kwayy-sitemap]` to the page content.
 
-= There is something not working on the plugin =
-* You can visit our official support forum at http://forum.kwayyinfotech.com/ and find your solution. If you don't find any solution than please feel free to start a new discussion.
+= Can I choose which post types and taxonomies to show? =
+Yes! In **Settings -> Kwayy HTML Sitemap**, you can check/uncheck each post type and taxonomy, and drag them to arrange your preferred display order.
 
-= I want a new feature in plugin =
-* Just start a new discussion on our official support forum http://forum.kwayyinfotech.com/ and we will take care of it.
+= Can I exclude specific posts or categories? =
+Yes, use the "Exclude Posts, Pages & Terms" multi-select box on the options page to search and exclude any specific post, page, or taxonomy term.
+
+= How do I add a link to the main CPT archive page? =
+In the settings table, check the "Add CPT Link" option next to any post type. The first link in that section will lead directly to the post type's archive page.
+
+= Where can I get support? =
+Visit our official support desk at [https://pbminfotech.support](https://pbminfotech.support).
 
 == Screenshots ==
 
-1. Settings->Kwayy HTML Sitemap Options page.
-2. You can change title of any custom post type by just clicking the "Change" link.
-3. Front view of sitemap page.
-
+1. Settings -> Kwayy HTML Sitemap options page with drag & drop sorting, icons, and options.
+2. Renaming custom display titles for post types and taxonomies.
+3. Frontend HTML sitemap output generated with shortcode `[kwayy-sitemap]`.
 
 == Changelog ==
 
+= 5.0 =
+* Added support for Taxonomies (Categories, Tags, Custom CPT Taxonomies).
+* Added Drag & Drop reordering for both CPTs and Taxonomies.
+* Added option to include CPT archive/page URL as the first link in each CPT section.
+* Added ability to exclude specific taxonomy terms alongside posts and pages.
+* Added Select2 search and multi-select for easily excluding posts and terms with type icons.
+* Redesigned options page with responsive layout, type icons, and tooltips.
+* Cleaned up empty post types and empty taxonomy headings when no visible items exist.
+* Added welcome admin notice directing users to Settings -> Kwayy HTML Sitemap.
+* Compatibility tested up to WordPress 7.1 and PHP 8.2.
+
 = 4.0 =
-* Security bug solved (Thanks to WPScan Security team)
+* Security enhancements.
 
 = 3.1 =
 * Small changes and added "Support Us" block on option page.
 
 = 3.0 =
-* Added support to change title of custom post type. (see screenshot-2 for details)
+* Added support to customize display titles of custom post types.
 
 = 2.0 =
-* Added support to exclude post.
-* Added css class to post list so you can set your own design.
-* Wrap sitemap content in a DIV.
+* Added support to exclude posts.
+* Added CSS classes to sitemap lists for custom design.
+* Wrapped sitemap content in a container div.
 * Redesigned options page.
 
 = 1.0.8 =
-* Replaced wrong shortcode description with correct details in plugin description
+* Replaced wrong shortcode description with correct details.
 
 = 1.0.7 =
-* Added sort order support to list all posts on sitemap page
+* Added sort order support to list all posts on sitemap page.
 
 = 1.0.6 =
-* Major bug solved (links not working)
+* Bug fix for links.
 
 = 1.0.5 =
-* Updated description (Thanks to Ben from tubal-reversal.net)
-* We have created support forum on our own hosting at http://forum.kwayyinfotech.com/
-* Added link of the support forum in plugin description.
+* Updated documentation and support details.
 
 = 1.0.4 =
 * Updated code to show posts in tree view.
 
 = 1.0.3 =
-* Bug solved
+* Bug fixes.
 
 = 1.0.2 =
-* Bug solved
+* Bug fixes.
 
 = 1.0.1 =
-* Bug solved
+* Initial release.
 
-= 1.0 =
-* Plugin released
+== Upgrade Notice ==
+
+= 5.0 =
+Major update featuring full taxonomy support, CPT archive link options, term exclusions, and modern admin UI.
