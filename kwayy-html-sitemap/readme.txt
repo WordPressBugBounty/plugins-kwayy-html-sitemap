@@ -5,7 +5,7 @@ Tags: sitemap, html sitemap, custom post type, taxonomy, woocommerce
 Requires at least: 5.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 5.0
+Stable tag: 5.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -84,6 +84,16 @@ Visit our official support desk at [https://pbminfotech.support](https://pbminfo
 3. Frontend HTML sitemap output generated with shortcode `[kwayy-sitemap]`.
 
 == Changelog ==
+
+= 5.1 =
+* Security Fix: Added nonce verification (`wp_nonce_field` and `check_admin_referer`) to prevent Cross-Site Request Forgery (CSRF) on settings save (CVE-2026-65539).
+* Security Fix: Added capability check (`manage_options`) and nonce verification (`check_ajax_referer`) to admin notice dismissal endpoint.
+* Security Fix: Added direct file access protection (`defined( 'ABSPATH' ) || exit;`).
+* Security Fix: Removed undefined role function in multisite check.
+* Security Fix: Hardened input sanitization with `wp_unslash()`, strict ID integer filtering, and sort order whitelist validation.
+* Security Fix: Enhanced output escaping with `esc_url()` for permalinks and `esc_attr()` for form input values.
+* Security Fix: Hardened Select2 rendering and popover title rename against DOM XSS.
+* Performance & Compatibility: Scoped Select2 and admin script enqueues strictly to the plugin settings page.
 
 = 5.0 =
 * Added support for Taxonomies (Categories, Tags, Custom CPT Taxonomies).
