@@ -22,7 +22,7 @@ jQuery(document).ready(function($){
 
 	function formatSelect2Item(option) {
 		if (!option.id) {
-			return option.text;
+			return $('<span></span>').text(option.text);
 		}
 		var $element = $(option.element);
 		var iconClass = $element.data('icon');
@@ -43,8 +43,7 @@ jQuery(document).ready(function($){
 			width: '100%',
 			closeOnSelect: false,
 			templateResult: formatSelect2Item,
-			templateSelection: formatSelect2Item,
-			escapeMarkup: function(m) { return m; }
+			templateSelection: formatSelect2Item
 		});
 	}
 
@@ -107,8 +106,8 @@ jQuery(document).ready(function($){
 			handle: '.kwayyhs-dragable-handler',
 			placeholder: 'kwayyhs-ui-state-highlight',
 			update: function(event, ui) {
-				var fruitOrder = $('#kwayyhs-sortable').sortable('toArray').toString();
-				$('#kwayyhs-sortorder').val(fruitOrder);
+				var sortOrder = $('#kwayyhs-sortable').sortable('toArray').toString();
+				$('#kwayyhs-sortorder').val(sortOrder);
 			}
 		});
 	}

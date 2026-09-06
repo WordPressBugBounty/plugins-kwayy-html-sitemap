@@ -3,7 +3,7 @@
 Plugin Name: Kwayy HTML Sitemap
 Plugin URI: http://www.kwayyinfotech.com/our-work/kwayy-html-sitemap/
 Description: Kwayy HTML Sitemap will generate HTML (not XML) sitemap for your sitemap page. The plugin will not only show Page and Posts but also your other Custom Post Type like Products etc. You can also configure to show or hide your Post Types. You just need to create a page for Sitemap and insert our shortcode <code>[kwayy-sitemap]</code> to display HTML sitemap. You can get support at http://forum.kwayyinfotech.com/
-Version: 5.1
+Version: 5.2
 Author: Kwayy Infotech
 Author URI: http://www.kwayyinfotech.com/
 License: GPL2
@@ -47,10 +47,18 @@ function kwayyhs_welcome_admin_notice() {
 			<div style="flex: 1; min-width: 240px;">
 				<h3 style="margin: 0 0 15px 0; font-size: 25px; font-weight: 600; color: #1d2327; display: flex; align-items: center; gap: 8px;">
 					<?php esc_html_e( 'Welcome to Kwayy HTML Sitemap', 'kwayy-html-sitemap' ); ?>
-					<span style="background: #2271b1; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; line-height: 1.3;">v5.1</span>
+					<span style="background: #2271b1; color: #fff; font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 10px; line-height: 1.3;">v5.2</span>
 				</h3>
 				<p style="margin: 0; color: #50575e; font-size: 13px; line-height: 1.5;">
-					<?php printf( __( 'Thank you for installing Kwayy HTML Sitemap! Your options menu is located under <strong>Settings &rarr; <a href="%s" style="text-decoration: none; color: #2271b1; font-weight: 600;">Kwayy HTML Sitemap</a></strong>. Configure your post types, taxonomies, and sitemap hierarchy anytime.', 'kwayy-html-sitemap' ), esc_url( $options_url ) ); ?>
+					<?php
+					echo wp_kses_post(
+						sprintf(
+							/* translators: %s: URL to options page */
+							__( 'Thank you for installing Kwayy HTML Sitemap! Your options menu is located under <strong>Settings &rarr; <a href="%s" style="text-decoration: none; color: #2271b1; font-weight: 600;">Kwayy HTML Sitemap</a></strong>. Configure your post types, taxonomies, and sitemap hierarchy anytime.', 'kwayy-html-sitemap' ),
+							esc_url( $options_url )
+						)
+					);
+					?>
 				</p>
 			</div>
 			<div style="flex-shrink: 0; display: flex; align-items: center; gap: 8px;">
@@ -301,6 +309,8 @@ function kwayyhs_page(){
 
 	update_option( 'kwayyhs_welcome_notice_dismissed', '1' );
 	
+	$settings_saved = false;
+
 	// Processing options update
 	if ( isset( $_POST['kwayyhs-update'] ) ) {
 		check_admin_referer( 'kwayyhs_save_settings', 'kwayyhs_nonce' );
@@ -399,7 +409,7 @@ function kwayyhs_page(){
 			}
 		}
 
-		add_action( 'admin_notices', 'kwayyhs_theme_upgrade_notice' );
+		$settings_saved = true;
 	}
 	
 	$ordered_items     = kwayyhs_get_ordered_items();
@@ -412,12 +422,15 @@ function kwayyhs_page(){
 	$post_types       = kwayyhs_post_types();
 	foreach ( $post_types as $pt ) {
 		$cpt_posts = get_posts( array(
-			'post_type'        => $pt->name,
-			'post_status'      => 'publish',
-			'posts_per_page'   => -1,
-			'orderby'          => 'title',
-			'order'            => 'ASC',
-			'suppress_filters' => false,
+			'post_type'              => $pt->name,
+			'post_status'            => 'publish',
+			'posts_per_page'         => -1,
+			'orderby'                => 'title',
+			'order'                  => 'ASC',
+			'no_found_rows'          => true,
+			'update_post_meta_cache' => false,
+			'update_post_term_cache' => false,
+			'suppress_filters'       => false,
 		) );
 		
 		$icon = 'dashicons-admin-post';
@@ -464,11 +477,15 @@ function kwayyhs_page(){
 		<div class="kwayyhs-header">
 			<img src="<?php echo esc_url( plugins_url( 'images/plugin-thumbnail-96x96.png', __FILE__ ) ); ?>" alt="Kwayy HTML Sitemap Logo" class="kwayyhs-header-logo" width="60" height="60" />
 			<div class="kwayyhs-header-title">
-				<h1>Kwayy HTML Sitemap <span class="kwayyhs-badge">v5.1</span></h1>
+				<h1>Kwayy HTML Sitemap <span class="kwayyhs-badge">v5.2</span></h1>
 				<p class="description"><?php _e( 'Configure sitemap post types, taxonomies, reorder display hierarchy, and exclude specific posts, pages, or terms.', 'kwayy-html-sitemap' ); ?></p>
 			</div>
 		</div>
 		<hr class="wp-header-end">
+	
+		<?php if ( $settings_saved ) : ?>
+			<?php kwayyhs_theme_upgrade_notice(); ?>
+		<?php endif; ?>
 	
 		<form method="post" action="">
 			<input type="hidden" name="kwayyhs-update" id="kwayyhs-update" value="y" />
@@ -488,7 +505,7 @@ function kwayyhs_page(){
 							</div>
 							<div class="inside">
 								<p class="description">
-									<?php _e( 'Drag items to reorder post types and taxonomies on the sitemap page. Use the checkboxes to enable or disable sections, or click <strong>Change Title</strong> to customize display titles.', 'kwayy-html-sitemap' ); ?>
+									<?php echo wp_kses_post( __( 'Drag items to reorder post types and taxonomies on the sitemap page. Use the checkboxes to enable or disable sections, or click <strong>Change Title</strong> to customize display titles.', 'kwayy-html-sitemap' ) ); ?>
 								</p>
 
 								<div class="kwayyhs-table-header">
@@ -518,7 +535,7 @@ function kwayyhs_page(){
 
 								<div class="kwayyhs-field-group">
 									<label for="kwayyhs-exclude" class="kwayyhs-field-label"><?php _e( 'Select Items to Exclude:', 'kwayy-html-sitemap' ); ?></label>
-									<select name="kwayyhs-exclude[]" id="kwayyhs-exclude" class="kwayyhs-select2" multiple="multiple" style="width: 100%;" data-placeholder="<?php _e( 'Search and select posts or terms to exclude...', 'kwayy-html-sitemap' ); ?>">
+									<select name="kwayyhs-exclude[]" id="kwayyhs-exclude" class="kwayyhs-select2" multiple="multiple" style="width: 100%;" data-placeholder="<?php esc_attr_e( 'Search and select posts or terms to exclude...', 'kwayy-html-sitemap' ); ?>">
 										<?php foreach ( $all_posts_by_cpt as $pt_slug => $pt_data ) : 
 											if ( empty( $pt_data['posts'] ) ) continue;
 										?>
@@ -573,7 +590,7 @@ function kwayyhs_page(){
 								<ol class="kwayyhs-steps">
 									<li><?php _e( 'Select & order post types and taxonomies on the left.', 'kwayy-html-sitemap' ); ?></li>
 									<li><?php _e( 'Create a new page (e.g. "Sitemap").', 'kwayy-html-sitemap' ); ?></li>
-									<li><?php _e( 'Insert shortcode <code>[kwayy-sitemap]</code> into the page.', 'kwayy-html-sitemap' ); ?></li>
+									<li><?php echo wp_kses_post( __( 'Insert shortcode <code>[kwayy-sitemap]</code> into the page.', 'kwayy-html-sitemap' ) ); ?></li>
 								</ol>
 								<hr class="kwayyhs-divider" />
 								<div class="kwayyhs-sidebar-buttons">
@@ -664,21 +681,20 @@ function kwayyhs_sortableList( $items ){
 }
 
 function kwayyhs_admin_scripts( $hook ) {
-	wp_enqueue_style( 'dashicons' );
-
 	if ( 'settings_page_kwayyhs' === $hook ) {
+		wp_enqueue_style( 'dashicons' );
 		wp_enqueue_style( 'select2-css', plugins_url( 'css/select2.min.css', __FILE__ ), array(), '4.0.13' );
 		wp_enqueue_script( 'select2-js', plugins_url( 'js/select2.min.js', __FILE__ ), array( 'jquery' ), '4.0.13', true );
 
-		wp_enqueue_style( 'kwayyhs-custom-css', plugins_url( 'css/kwayy-html-sitemap.css', __FILE__ ), array( 'select2-css' ), '5.1' );
-		wp_enqueue_script( 'kwayyhs-custom-js', plugins_url( 'js/kwayy-html-sitemap.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-sortable', 'select2-js' ), '5.1', true );
+		wp_enqueue_style( 'kwayyhs-custom-css', plugins_url( 'css/kwayy-html-sitemap.css', __FILE__ ), array( 'select2-css' ), '5.2' );
+		wp_enqueue_script( 'kwayyhs-custom-js', plugins_url( 'js/kwayy-html-sitemap.js', __FILE__ ), array( 'jquery', 'jquery-ui-core', 'jquery-ui-sortable', 'select2-js' ), '5.2', true );
 
 		wp_localize_script( 'kwayyhs-custom-js', 'kwayyhs_vars', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'kwayyhs_dismiss_notice' ),
 		) );
-	} elseif ( get_option( 'kwayyhs_welcome_notice_dismissed', '0' ) !== '1' ) {
-		wp_enqueue_script( 'kwayyhs-custom-js', plugins_url( 'js/kwayy-html-sitemap.js', __FILE__ ), array( 'jquery' ), '5.1', true );
+	} elseif ( current_user_can( 'manage_options' ) && get_option( 'kwayyhs_welcome_notice_dismissed', '0' ) !== '1' ) {
+		wp_enqueue_script( 'kwayyhs-custom-js', plugins_url( 'js/kwayy-html-sitemap.js', __FILE__ ), array( 'jquery' ), '5.2', true );
 		wp_localize_script( 'kwayyhs-custom-js', 'kwayyhs_vars', array(
 			'ajax_url' => admin_url( 'admin-ajax.php' ),
 			'nonce'    => wp_create_nonce( 'kwayyhs_dismiss_notice' ),
@@ -714,19 +730,41 @@ function shortcode_kwayy_sitemap( $atts ){
 add_shortcode( 'kwayy-sitemap', 'shortcode_kwayy_sitemap' );
 
 function kwayyhs_get_post_by_post_type( $postype , $title , $orderby = 'menu_order' , $order = 'ASC' , $include_archive = false ){
-	global $post;
-	$curr_page_id = '';
-	
-	if( isset($post->ID) ){
-		$curr_page_id = $post->ID;
+	if ( ! post_type_exists( $postype ) ) {
+		return '';
 	}
+
+	if ( function_exists( 'is_post_type_viewable' ) && ! is_post_type_viewable( $postype ) ) {
+		return '';
+	}
+
+	global $post;
+	$curr_page_id = isset( $post->ID ) ? (int) $post->ID : 0;
 	
-	$args = array( 'post_type' => $postype, 'posts_per_page' => -1, 'orderby' => $orderby, 'order' => $order );
+	$args = array(
+		'post_type'              => $postype,
+		'post_status'            => 'publish',
+		'posts_per_page'         => -1,
+		'orderby'                => $orderby,
+		'order'                  => $order,
+		'no_found_rows'          => true,
+		'update_post_meta_cache' => false,
+		'update_post_term_cache' => false,
+		'suppress_filters'       => false,
+	);
 	$loop = new WP_Query( $args );
 	$posts = $loop->posts;
 	wp_reset_postdata();
 
-	$subposts = kwayyhs_get_subpost( $posts , 0 , $curr_page_id );
+	$kwayyhs_exclude = get_option( 'kwayyhs_exclude' );
+	if ( is_array( $kwayyhs_exclude ) ) {
+		$excluded_ids = array_map( 'intval', $kwayyhs_exclude );
+	} else {
+		$excluded_ids = array_filter( array_map( 'intval', explode( ',', (string) $kwayyhs_exclude ) ) );
+	}
+
+	$visited = array();
+	$subposts = kwayyhs_get_subpost( $posts, 0, $curr_page_id, $excluded_ids, $visited, 0 );
 	
 	$archive_html = '';
 	if ( $include_archive ) {
@@ -754,8 +792,8 @@ function kwayyhs_get_post_by_post_type( $postype , $title , $orderby = 'menu_ord
 		return '';
 	}
 	
-	$return  = '<h2 class="kwayy-html-sitemap-post-title kwayy-'.esc_attr($postype).'-title">'.esc_html($title).'</h2>';
-	$return .= '<ul class="kwayy-html-sitemap-post-list kwayy-'.esc_attr($postype).'-list">';
+	$return  = '<h2 class="kwayy-html-sitemap-post-title kwayy-' . esc_attr( $postype ) . '-title">' . esc_html( $title ) . '</h2>';
+	$return .= '<ul class="kwayy-html-sitemap-post-list kwayy-' . esc_attr( $postype ) . '-list">';
 	$return .= $archive_html;
 	$return .= $subposts;
 	$return .= '</ul>';
@@ -763,31 +801,40 @@ function kwayyhs_get_post_by_post_type( $postype , $title , $orderby = 'menu_ord
 	return $return;
 }
 
-function kwayyhs_get_subpost( $posts , $parent_id , $curr_page_id ){
-	$return = '';
-	$posts2 = $posts;
-	
-	$kwayyhs_exclude = get_option('kwayyhs_exclude');
-	if ( is_array( $kwayyhs_exclude ) ) {
-		$excluded_ids = array_map( 'intval', $kwayyhs_exclude );
-	} else {
-		$excluded_ids = array_filter( array_map( 'intval', explode( ',', (string)$kwayyhs_exclude ) ) );
+function kwayyhs_get_subpost( $posts , $parent_id , $curr_page_id , $excluded_ids = null , &$visited = array() , $depth = 0 ){
+	if ( $depth > 15 ) {
+		return '';
+	}
+
+	if ( null === $excluded_ids ) {
+		$kwayyhs_exclude = get_option( 'kwayyhs_exclude' );
+		if ( is_array( $kwayyhs_exclude ) ) {
+			$excluded_ids = array_map( 'intval', $kwayyhs_exclude );
+		} else {
+			$excluded_ids = array_filter( array_map( 'intval', explode( ',', (string) $kwayyhs_exclude ) ) );
+		}
 	}
 	
-	if( ! empty( $posts ) && is_array( $posts ) ){
-		foreach($posts as $post){
-			if($post->post_parent == $parent_id){
-				if( $post->ID != $curr_page_id ){
-					if( ! in_array( (int)$post->ID, $excluded_ids, true ) ){
-						$return .= '<li><a href="' . esc_url( get_permalink( $post->ID ) ) . '">' . esc_html( $post->post_title ) . '</a>';
-						$return .= kwayyhs_get_subpost( $posts2, $post->ID , $curr_page_id );
+	$return = '';
+	if ( ! empty( $posts ) && is_array( $posts ) ){
+		foreach( $posts as $p ){
+			if ( (int) $p->post_parent === (int) $parent_id ){
+				$pid = (int) $p->ID;
+				if ( isset( $visited[ $pid ] ) ) {
+					continue;
+				}
+				if ( $pid !== (int) $curr_page_id ){
+					if ( ! in_array( $pid, $excluded_ids, true ) ){
+						$visited[ $pid ] = true;
+						$return .= '<li><a href="' . esc_url( get_permalink( $pid ) ) . '">' . esc_html( $p->post_title ) . '</a>';
+						$return .= kwayyhs_get_subpost( $posts, $pid, $curr_page_id, $excluded_ids, $visited, $depth + 1 );
 						$return .= '</li>';
 					}
 				}
 			}
 		}
-		if( $return != '' && $parent_id != 0 ){
-			$return = '<ul>'.$return.'</ul>';
+		if ( $return !== '' && $parent_id !== 0 ){
+			$return = '<ul>' . $return . '</ul>';
 		}
 	}
 	
@@ -798,67 +845,123 @@ function kwayyhs_get_taxonomy_terms( $taxonomy_name, $title ) {
 	if ( ! taxonomy_exists( $taxonomy_name ) ) {
 		return '';
 	}
+
+	if ( function_exists( 'is_taxonomy_viewable' ) && ! is_taxonomy_viewable( $taxonomy_name ) ) {
+		return '';
+	}
 	
 	$terms = get_terms( array(
 		'taxonomy'   => $taxonomy_name,
 		'hide_empty' => true,
-		'parent'     => 0,
 	) );
 	
 	if ( empty( $terms ) || is_wp_error( $terms ) ) {
 		return '';
 	}
 	
-	$kwayyhs_exclude = get_option('kwayyhs_exclude');
-	$excluded_items  = array_filter( array_map( 'trim', explode( ',', (string)$kwayyhs_exclude ) ) );
+	$kwayyhs_exclude = get_option( 'kwayyhs_exclude' );
+	$excluded_items  = array_filter( array_map( 'trim', explode( ',', (string) $kwayyhs_exclude ) ) );
 	
-	$term_list = kwayyhs_get_subterms( $terms, $taxonomy_name, $excluded_items );
+	// Group terms by parent in-memory to prevent N+1 queries
+	$terms_by_parent = array();
+	foreach ( $terms as $term ) {
+		$parent_id = (int) $term->parent;
+		if ( ! isset( $terms_by_parent[ $parent_id ] ) ) {
+			$terms_by_parent[ $parent_id ] = array();
+		}
+		$terms_by_parent[ $parent_id ][] = $term;
+	}
+
+	$visited = array();
+	$term_list = kwayyhs_get_subterms_tree( $terms_by_parent, 0, $excluded_items, $visited, 0 );
 	if ( empty( trim( $term_list ) ) ) {
 		return '';
 	}
 	
-	$return  = '<h2 class="kwayy-html-sitemap-tax-title kwayy-tax-'.esc_attr($taxonomy_name).'-title">'.esc_html($title).'</h2>';
-	$return .= '<ul class="kwayy-html-sitemap-tax-list kwayy-tax-'.esc_attr($taxonomy_name).'-list">';
+	$return  = '<h2 class="kwayy-html-sitemap-tax-title kwayy-tax-' . esc_attr( $taxonomy_name ) . '-title">' . esc_html( $title ) . '</h2>';
+	$return .= '<ul class="kwayy-html-sitemap-tax-list kwayy-tax-' . esc_attr( $taxonomy_name ) . '-list">';
 	$return .= $term_list;
 	$return .= '</ul>';
 	
 	return $return;
 }
 
-function kwayyhs_get_subterms( $terms, $taxonomy_name, $excluded_items = array() ) {
-	$return = '';
-	if ( empty( $terms ) || is_wp_error( $terms ) ) {
-		return $return;
+function kwayyhs_get_subterms_tree( &$terms_by_parent, $parent_id = 0, $excluded_items = array(), &$visited = array(), $depth = 0 ) {
+	if ( $depth > 15 || empty( $terms_by_parent[ $parent_id ] ) ) {
+		return '';
 	}
-	
-	foreach ( $terms as $term ) {
-		$term_val = 'term_' . $term->term_id;
+
+	$return = '';
+	foreach ( $terms_by_parent[ $parent_id ] as $term ) {
+		$term_id = (int) $term->term_id;
+		if ( isset( $visited[ $term_id ] ) ) {
+			continue;
+		}
+
+		$term_val = 'term_' . $term_id;
 		if ( in_array( $term_val, $excluded_items, true ) ) {
 			continue;
 		}
-		
+
 		$term_link = get_term_link( $term );
 		if ( is_wp_error( $term_link ) ) {
 			continue;
 		}
-		
-		$sub = '';
-		$child_terms = get_terms( array(
-			'taxonomy'   => $taxonomy_name,
-			'hide_empty' => true,
-			'parent'     => $term->term_id,
-		) );
-		
-		if ( ! empty( $child_terms ) && ! is_wp_error( $child_terms ) ) {
-			$sub = kwayyhs_get_subterms( $child_terms, $taxonomy_name, $excluded_items );
-		}
-		
+
+		$visited[ $term_id ] = true;
+		$sub = kwayyhs_get_subterms_tree( $terms_by_parent, $term_id, $excluded_items, $visited, $depth + 1 );
+
 		$return .= '<li><a href="' . esc_url( $term_link ) . '">' . esc_html( $term->name ) . '</a>';
 		if ( ! empty( $sub ) ) {
 			$return .= '<ul>' . $sub . '</ul>';
 		}
 		$return .= '</li>';
 	}
-	
+
+	return $return;
+}
+
+function kwayyhs_get_subterms( $terms, $taxonomy_name, $excluded_items = array(), &$visited = array(), $depth = 0 ) {
+	if ( $depth > 15 || empty( $terms ) || is_wp_error( $terms ) ) {
+		return '';
+	}
+
+	$return = '';
+	foreach ( $terms as $term ) {
+		$term_id = (int) $term->term_id;
+		if ( isset( $visited[ $term_id ] ) ) {
+			continue;
+		}
+
+		$term_val = 'term_' . $term_id;
+		if ( in_array( $term_val, $excluded_items, true ) ) {
+			continue;
+		}
+
+		$term_link = get_term_link( $term );
+		if ( is_wp_error( $term_link ) ) {
+			continue;
+		}
+
+		$visited[ $term_id ] = true;
+
+		$sub = '';
+		$child_terms = get_terms( array(
+			'taxonomy'   => $taxonomy_name,
+			'hide_empty' => true,
+			'parent'     => $term_id,
+		) );
+
+		if ( ! empty( $child_terms ) && ! is_wp_error( $child_terms ) ) {
+			$sub = kwayyhs_get_subterms( $child_terms, $taxonomy_name, $excluded_items, $visited, $depth + 1 );
+		}
+
+		$return .= '<li><a href="' . esc_url( $term_link ) . '">' . esc_html( $term->name ) . '</a>';
+		if ( ! empty( $sub ) ) {
+			$return .= '<ul>' . $sub . '</ul>';
+		}
+		$return .= '</li>';
+	}
+
 	return $return;
 }
