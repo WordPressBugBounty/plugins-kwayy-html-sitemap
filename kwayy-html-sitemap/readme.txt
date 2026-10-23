@@ -77,6 +77,9 @@ In the settings table, check the "Add CPT Link" option next to any post type. Th
 = Where can I get support? =
 Visit our official support desk at [https://pbminfotech.support](https://pbminfotech.support).
 
+= Where do I report security bugs found in this plugin? =
+Please report security bugs found in the source code of the Kwayy HTML Sitemap plugin through the [Patchstack Vulnerability Disclosure Program](https://patchstack.com/database/vdp/71fee409-aa44-49d1-b1b5-067e70bbc158). The Patchstack team will assist you with verification, CVE assignment, and notify the developers of this plugin.
+
 == Screenshots ==
 
 1. Settings -> Kwayy HTML Sitemap options page with drag & drop sorting, icons, and options.
